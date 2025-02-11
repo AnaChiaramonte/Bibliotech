@@ -1,0 +1,6 @@
+@Bibliotech_HostAddress = http://localhost:5010
+
+GET {{Bibliotech_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
