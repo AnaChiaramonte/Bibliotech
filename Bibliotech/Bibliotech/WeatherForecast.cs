@@ -10,6 +10,5 @@ namespace Bibliotech
 
         public string? Summary { get; set; }
 
-        public int teste { get; set; }
     }
 }
