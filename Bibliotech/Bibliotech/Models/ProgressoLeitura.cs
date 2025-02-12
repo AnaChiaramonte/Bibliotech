@@ -2,6 +2,7 @@
 {
     public class ProgressoLeitura
     {
+        public Guid ProgressoLeituraId { get; set; }
         public int livroId { get; set; }
         public int usuarioId { get; set; }
         public int paginaLidas { get; set; }

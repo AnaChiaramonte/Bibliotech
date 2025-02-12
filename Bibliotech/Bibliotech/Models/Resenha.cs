@@ -2,10 +2,12 @@
 {
     public class Resenha
     {
-        public int LivroId { get; set; }
+        public Guid ResenhaId { get; set; }
+        public Guid? LivroId { get; set; }
+        public Livros? Livro { get; set; }
         public int UsuarioId { get; set; }
         public string Texto { get; set; }
         public int Avaliação { get; set; } = 5;
-        public int DataResenha { get; set; }= 0;
+        public DateOnly DataResenha { get; set; } = DateOnly.FromDateTime(DateTime.Now);
     }
 }
