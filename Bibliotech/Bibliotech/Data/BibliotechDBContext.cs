@@ -13,6 +13,7 @@ namespace Bibliotech.Data
         public DbSet<Livros> livros { get; set; }
         public DbSet<ProgressoLeitura> progressos { get; set; }
         public DbSet<Resenha> resenhas { get; set; }
+        public DbSet<Usuario> usuarios { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -21,6 +22,7 @@ namespace Bibliotech.Data
             modelBuilder.Entity<Livros>().ToTable("Livros");
             modelBuilder.Entity<ProgressoLeitura>().ToTable("Progressos");
             modelBuilder.Entity<Resenha>().ToTable("Resenhas");
+            modelBuilder.Entity<Usuario>().ToTable("Usuarios");
         }
     }
 }
