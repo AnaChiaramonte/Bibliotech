@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Bibliotech.Data;
 using Bibliotech.Models;
+using Microsoft.AspNetCore.Identity;
+using System.Security.Claims;
 
 namespace Bibliotech.Controllers
 {
@@ -78,6 +80,17 @@ namespace Bibliotech.Controllers
         [HttpPost]
         public async Task<ActionResult<Usuario>> PostUsuario(Usuario usuario)
         {
+            // Obter o ID do usuário de forma mais segura
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+
+
+            if (string.IsNullOrEmpty(userId))
+            {
+                return Unauthorized("Usuário não autenticado");
+            }
+            usuario.UserId = Guid.Parse(userId);
+
             _context.usuarios.Add(usuario);
             await _context.SaveChangesAsync();
 

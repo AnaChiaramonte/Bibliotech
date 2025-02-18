@@ -7,11 +7,13 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Bibliotech.Data;
 using Bibliotech.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Bibliotech.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class ResenhasController : ControllerBase
     {
         private readonly BibliotechDBContext _context;
@@ -22,6 +24,7 @@ namespace Bibliotech.Controllers
         }
 
         // GET: api/Resenhas
+        [AllowAnonymous]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Resenha>>> Getresenhas()
         {

@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Bibliotech.Data;
 using Bibliotech.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Bibliotech.Controllers
 {
@@ -103,6 +104,26 @@ namespace Bibliotech.Controllers
         private bool ProgressoLeituraExists(Guid id)
         {
             return _context.progressos.Any(e => e.ProgressoLeituraId == id);
+        }
+
+        // POST: api/ProgressoLeituras/save
+        [HttpPost("save")]
+        [Authorize]
+        public async Task<ActionResult<ProgressoLeitura>> SaveProgressoLeitura(ProgressoLeitura progressoLeitura)
+        {
+            var userId = User.Claims.FirstOrDefault(c => c.Type == "sub")?.Value;
+            if (userId == null)
+            {
+                return Unauthorized();
+            }
+
+            progressoLeitura.usuarioId = Guid.Parse(userId);
+            progressoLeitura.DataAtualização = DateTime.Now;
+
+            _context.progressos.Add(progressoLeitura);
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction("GetProgressoLeitura", new { id = progressoLeitura.ProgressoLeituraId }, progressoLeitura);
         }
     }
 }
