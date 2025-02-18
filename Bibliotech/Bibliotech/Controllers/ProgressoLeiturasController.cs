@@ -42,6 +42,30 @@ namespace Bibliotech.Controllers
             return progressoLeitura;
         }
 
+        // GET: api/ProgressoLeituras/user/{userId}/date/{date}
+        [HttpGet("user/{userId}/date/{date}")]
+        public async Task<ActionResult<object>> GetReadingProgress(Guid userId, DateTime date)
+        {
+            var progressos = await _context.progressos
+                .Where(p => p.usuarioId == userId && p.DataAtualização.Date == date.Date)
+                .OrderBy(p => p.DataAtualização)
+                .ToListAsync();
+
+            if (progressos.Count < 2)
+            {
+                return NotFound("Not enough data to calculate progress.");
+            }
+
+            var paginasLidas = progressos.Last().paginaLidas - progressos.First().paginaLidas;
+            var progresso = (double)progressos.Last().paginaLidas / progressos.Last().totalPaginas * 100;
+
+            return new
+            {
+                PaginasLidas = paginasLidas,
+                Progresso = progresso
+            };
+        }
+
         // PUT: api/ProgressoLeituras/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]

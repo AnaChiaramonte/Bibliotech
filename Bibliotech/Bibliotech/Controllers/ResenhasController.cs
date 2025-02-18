@@ -104,5 +104,16 @@ namespace Bibliotech.Controllers
         {
             return _context.resenhas.Any(e => e.ResenhaId == id);
         }
+
+        // POST: api/Resenhas/review
+        [HttpPost("review")]
+        public async Task<ActionResult<Resenha>> PostReview(Resenha resenha)
+        {
+            resenha.DataResenha = DateOnly.FromDateTime(DateTime.Now);
+            _context.resenhas.Add(resenha);
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction("GetResenha", new { id = resenha.ResenhaId }, resenha);
+        }
     }
 }
