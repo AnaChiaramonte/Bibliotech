@@ -42,6 +42,15 @@ namespace Bibliotech.Controllers
             return livros;
         }
 
+        // GET: api/Livros/search?name={name}
+        [HttpGet("search")]
+        public async Task<ActionResult<IEnumerable<Livros>>> SearchLivros(string name)
+        {
+            return await _context.livros
+                .Where(l => l.Titulo.Contains(name))
+                .ToListAsync();
+        }
+
         // PUT: api/Livros/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
