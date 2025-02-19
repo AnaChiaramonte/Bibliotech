@@ -17,10 +17,12 @@ namespace Bibliotech.Controllers
     public class UsuariosController : ControllerBase
     {
         private readonly BibliotechDBContext _context;
+        private readonly UserManager<IdentityUser> _userManager;
 
-        public UsuariosController(BibliotechDBContext context)
+        public UsuariosController(BibliotechDBContext context, UserManager<IdentityUser> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
 
         // GET: api/Usuarios
@@ -83,13 +85,20 @@ namespace Bibliotech.Controllers
             // Obter o ID do usuário de forma mais segura
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-
-
             if (string.IsNullOrEmpty(userId))
             {
                 return Unauthorized("Usuário não autenticado");
             }
+
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+            {
+                return Unauthorized("Usuário não encontrado");
+            }
+
             usuario.UserId = Guid.Parse(userId);
+            usuario.Email = user.Email;
+            usuario.Senha = user.PasswordHash;
 
             _context.usuarios.Add(usuario);
             await _context.SaveChangesAsync();
