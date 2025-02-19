@@ -7,11 +7,13 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Bibliotech.Data;
 using Bibliotech.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Bibliotech.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class ResenhasController : ControllerBase
     {
         private readonly BibliotechDBContext _context;
@@ -22,6 +24,7 @@ namespace Bibliotech.Controllers
         }
 
         // GET: api/Resenhas
+        [AllowAnonymous]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Resenha>>> Getresenhas()
         {
@@ -103,17 +106,6 @@ namespace Bibliotech.Controllers
         private bool ResenhaExists(Guid id)
         {
             return _context.resenhas.Any(e => e.ResenhaId == id);
-        }
-
-        // POST: api/Resenhas/review
-        [HttpPost("review")]
-        public async Task<ActionResult<Resenha>> PostReview(Resenha resenha)
-        {
-            resenha.DataResenha = DateOnly.FromDateTime(DateTime.Now);
-            _context.resenhas.Add(resenha);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction("GetResenha", new { id = resenha.ResenhaId }, resenha);
         }
     }
 }

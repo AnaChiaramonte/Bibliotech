@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Bibliotech.Migrations
 {
     /// <inheritdoc />
-    public partial class Initial : Migration
+    public partial class FinalizaçãoBibliotech : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -69,30 +69,14 @@ namespace Bibliotech.Migrations
                 {
                     ProgressoLeituraId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     livroId = table.Column<int>(type: "int", nullable: false),
-                    usuarioId = table.Column<int>(type: "int", nullable: false),
+                    usuarioId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     paginaLidas = table.Column<int>(type: "int", nullable: false),
                     totalPaginas = table.Column<int>(type: "int", nullable: false),
-                    DataAtualização = table.Column<int>(type: "int", nullable: false)
+                    DataAtualização = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Progressos", x => x.ProgressoLeituraId);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Usuarios",
-                columns: table => new
-                {
-                    UsuarioId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Nome = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Email = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Senha = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    FotoPerfil = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Biografia = table.Column<string>(type: "nvarchar(max)", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Usuarios", x => x.UsuarioId);
                 });
 
             migrationBuilder.CreateTable(
@@ -202,6 +186,29 @@ namespace Bibliotech.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Usuarios",
+                columns: table => new
+                {
+                    UsuarioId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Nome = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Email = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Senha = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    FotoPerfil = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Biografia = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    UserId1 = table.Column<string>(type: "nvarchar(450)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Usuarios", x => x.UsuarioId);
+                    table.ForeignKey(
+                        name: "FK_Usuarios_AspNetUsers_UserId1",
+                        column: x => x.UserId1,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Livros",
                 columns: table => new
                 {
@@ -290,6 +297,11 @@ namespace Bibliotech.Migrations
                 name: "IX_Resenhas_LivroId",
                 table: "Resenhas",
                 column: "LivroId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Usuarios_UserId1",
+                table: "Usuarios",
+                column: "UserId1");
         }
 
         /// <inheritdoc />
@@ -323,10 +335,10 @@ namespace Bibliotech.Migrations
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
-                name: "AspNetUsers");
+                name: "Livros");
 
             migrationBuilder.DropTable(
-                name: "Livros");
+                name: "AspNetUsers");
 
             migrationBuilder.DropTable(
                 name: "Categorias");

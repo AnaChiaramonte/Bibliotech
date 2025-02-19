@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Bibliotech.Data;
 using Bibliotech.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Bibliotech.Controllers
 {
@@ -40,30 +41,6 @@ namespace Bibliotech.Controllers
             }
 
             return progressoLeitura;
-        }
-
-        // GET: api/ProgressoLeituras/user/{userId}/date/{date}
-        [HttpGet("user/{userId}/date/{date}")]
-        public async Task<ActionResult<object>> GetReadingProgress(Guid userId, DateTime date)
-        {
-            var progressos = await _context.progressos
-                .Where(p => p.usuarioId == userId && p.DataAtualização.Date == date.Date)
-                .OrderBy(p => p.DataAtualização)
-                .ToListAsync();
-
-            if (progressos.Count < 2)
-            {
-                return NotFound("Not enough data to calculate progress.");
-            }
-
-            var paginasLidas = progressos.Last().paginaLidas - progressos.First().paginaLidas;
-            var progresso = (double)progressos.Last().paginaLidas / progressos.Last().totalPaginas * 100;
-
-            return new
-            {
-                PaginasLidas = paginasLidas,
-                Progresso = progresso
-            };
         }
 
         // PUT: api/ProgressoLeituras/5
@@ -127,6 +104,26 @@ namespace Bibliotech.Controllers
         private bool ProgressoLeituraExists(Guid id)
         {
             return _context.progressos.Any(e => e.ProgressoLeituraId == id);
+        }
+
+        // POST: api/ProgressoLeituras/save
+        [HttpPost("save")]
+        [Authorize]
+        public async Task<ActionResult<ProgressoLeitura>> SaveProgressoLeitura(ProgressoLeitura progressoLeitura)
+        {
+            var userId = User.Claims.FirstOrDefault(c => c.Type == "sub")?.Value;
+            if (userId == null)
+            {
+                return Unauthorized();
+            }
+
+            progressoLeitura.usuarioId = Guid.Parse(userId);
+            progressoLeitura.DataAtualização = DateTime.Now;
+
+            _context.progressos.Add(progressoLeitura);
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction("GetProgressoLeitura", new { id = progressoLeitura.ProgressoLeituraId }, progressoLeitura);
         }
     }
 }

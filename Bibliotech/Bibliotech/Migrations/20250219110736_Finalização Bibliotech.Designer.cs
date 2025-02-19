@@ -12,15 +12,15 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Bibliotech.Migrations
 {
     [DbContext(typeof(BibliotechDBContext))]
-    [Migration("20250212181619_Initial")]
-    partial class Initial
+    [Migration("20250219110736_Finalização Bibliotech")]
+    partial class FinalizaçãoBibliotech
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.12")
+                .HasAnnotation("ProductVersion", "8.0.13")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -77,8 +77,8 @@ namespace Bibliotech.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<int>("DataAtualização")
-                        .HasColumnType("int");
+                    b.Property<DateTime>("DataAtualização")
+                        .HasColumnType("datetime2");
 
                     b.Property<int>("livroId")
                         .HasColumnType("int");
@@ -89,8 +89,8 @@ namespace Bibliotech.Migrations
                     b.Property<int>("totalPaginas")
                         .HasColumnType("int");
 
-                    b.Property<int>("usuarioId")
-                        .HasColumnType("int");
+                    b.Property<Guid>("usuarioId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.HasKey("ProgressoLeituraId");
 
@@ -136,7 +136,6 @@ namespace Bibliotech.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Email")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("FotoPerfil")
@@ -147,10 +146,17 @@ namespace Bibliotech.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Senha")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<Guid?>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("UserId1")
+                        .HasColumnType("nvarchar(450)");
+
                     b.HasKey("UsuarioId");
+
+                    b.HasIndex("UserId1");
 
                     b.ToTable("Usuarios", (string)null);
                 });
@@ -369,6 +375,15 @@ namespace Bibliotech.Migrations
                         .HasForeignKey("LivroId");
 
                     b.Navigation("Livro");
+                });
+
+            modelBuilder.Entity("Bibliotech.Models.Usuario", b =>
+                {
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId1");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
