@@ -56,8 +56,12 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
-// Serviço de EndPoints do Identity Framework
-builder.Services.AddIdentityApiEndpoints<IdentityUser>(options =>
+// ... outros serviços ...
+
+builder.Services.AddSingleton<IEmailSender<IdentityUser>, DummyEmailSender>();
+
+
+builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
 {
     options.SignIn.RequireConfirmedEmail = false;
     options.SignIn.RequireConfirmedAccount = false;
@@ -68,7 +72,8 @@ builder.Services.AddIdentityApiEndpoints<IdentityUser>(options =>
     options.Password.RequiredLength = 4;
 })
     .AddEntityFrameworkStores<BibliotechDBContext>()
-    .AddDefaultTokenProviders(); // Adicionando o provedor de tokens padrão
+    .AddDefaultTokenProviders();
+
 
 // Add Serviço de Autenticação e Autorização
 builder.Services.AddAuthentication();

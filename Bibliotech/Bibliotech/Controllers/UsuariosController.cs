@@ -1,14 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+﻿using System.Security.Claims;
 using Bibliotech.Data;
 using Bibliotech.Models;
 using Microsoft.AspNetCore.Identity;
-using System.Security.Claims;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace Bibliotech.Controllers
 {
@@ -125,6 +120,52 @@ namespace Bibliotech.Controllers
         private bool UsuarioExists(Guid id)
         {
             return _context.usuarios.Any(e => e.UsuarioId == id);
+        }
+
+        [HttpGet("role/{email}")]
+        public async Task<ActionResult<string>> GetUserRoleByEmail(string email)
+        {
+            var user = await _userManager.FindByEmailAsync(email);
+            if (user == null)
+            {
+                return NotFound("Usuário não encontrado");
+            }
+            var roles = await _userManager.GetRolesAsync(user);
+            if (roles.Count == 0)
+            {
+                return Ok("Leitor");
+            }
+            return Ok(roles.FirstOrDefault());
+        }
+
+
+        // Criar um endpoint que busca o usuário a partir do e-mail
+        [HttpGet("byEmail/{email}")]
+        public async Task<ActionResult<Usuario>> GetUsuarioByEmail(string email)
+        {
+            var usuario = await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
+            if (usuario == null)
+            {
+                return NotFound("Usuário não encontrado");
+            }
+            return Ok(usuario);
+        }
+
+        // Criar um endpoint que coloca o usuário como administrador
+        [HttpPost("makeAdmin/{email}")]
+        public ActionResult MakeUserAdmin(string email)
+        {
+            var user = _context.Users.Where(u => u.Email == email).FirstOrDefault();
+            if (user == null)
+            {
+                return NotFound("Usuário não encontrado");
+            }
+            var result = _userManager.AddToRoleAsync(user, "Admin").Result;
+            if (!result.Succeeded)
+            {
+                return BadRequest("Erro ao adicionar o usuário ao papel de administrador");
+            }
+            return Ok("Usuário adicionado ao papel de administrador com sucesso");
         }
     }
 }
