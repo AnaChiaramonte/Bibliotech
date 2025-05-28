@@ -4,6 +4,7 @@ using Bibliotech.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Bibliotech.Migrations
 {
     [DbContext(typeof(BibliotechDBContext))]
-    partial class BibliotechDBContextModelSnapshot : ModelSnapshot
+    [Migration("20250402141018_Inicio")]
+    partial class Inicio
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,44 +24,6 @@ namespace Bibliotech.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
-
-            modelBuilder.Entity("Biblioteca.Models.Avaliacao", b =>
-                {
-                    b.Property<int>("AvaliacaoId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("AvaliacaoId"));
-
-                    b.Property<string>("Comentario")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("DataAvaliacao")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("LivroId")
-                        .HasColumnType("int");
-
-                    b.Property<Guid?>("LivrosId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<int>("Nota")
-                        .HasColumnType("int");
-
-                    b.Property<int>("UsuarioId")
-                        .HasColumnType("int");
-
-                    b.Property<Guid?>("UsuarioId1")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("AvaliacaoId");
-
-                    b.HasIndex("LivrosId");
-
-                    b.HasIndex("UsuarioId1");
-
-                    b.ToTable("Avaliacao");
-                });
 
             modelBuilder.Entity("Bibliotech.Models.Categoria", b =>
                 {
@@ -221,20 +186,6 @@ namespace Bibliotech.Migrations
                         .HasFilter("[NormalizedName] IS NOT NULL");
 
                     b.ToTable("AspNetRoles", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            Id = "def89a59-6b11-48f3-9c5f-0a13ab2495b1",
-                            Name = "Admin",
-                            NormalizedName = "ADMIN"
-                        },
-                        new
-                        {
-                            Id = "fa2ec0b6-ca92-4643-b66d-af3ed5548d28",
-                            Name = "Leitor",
-                            NormalizedName = "LEITOR"
-                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -325,24 +276,6 @@ namespace Bibliotech.Migrations
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
                     b.ToTable("AspNetUsers", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            Id = "353e7237-2571-4af1-a743-f5b3c94486da",
-                            AccessFailedCount = 0,
-                            ConcurrencyStamp = "c846ce2e-7eeb-47c5-8419-122becd6fd21",
-                            Email = "admin@admin.com",
-                            EmailConfirmed = true,
-                            LockoutEnabled = false,
-                            NormalizedEmail = "ADMIN@ADMIN.COM",
-                            NormalizedUserName = "ADMIN@ADMIN.COM",
-                            PasswordHash = "AQAAAAIAAYagAAAAEEzgRG0rq2C03taDucvM/n75mgHKLvoABjqajL/dg6Pn9Yp8lvcHysp56rB1ZWup4Q==",
-                            PhoneNumberConfirmed = false,
-                            SecurityStamp = "c6f2b968-a4fe-489f-b8aa-856e54c3d75c",
-                            TwoFactorEnabled = false,
-                            UserName = "admin@admin.com"
-                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
@@ -405,13 +338,6 @@ namespace Bibliotech.Migrations
                     b.HasIndex("RoleId");
 
                     b.ToTable("AspNetUserRoles", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            UserId = "353e7237-2571-4af1-a743-f5b3c94486da",
-                            RoleId = "def89a59-6b11-48f3-9c5f-0a13ab2495b1"
-                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
@@ -431,21 +357,6 @@ namespace Bibliotech.Migrations
                     b.HasKey("UserId", "LoginProvider", "Name");
 
                     b.ToTable("AspNetUserTokens", (string)null);
-                });
-
-            modelBuilder.Entity("Biblioteca.Models.Avaliacao", b =>
-                {
-                    b.HasOne("Bibliotech.Models.Livros", "Livro")
-                        .WithMany()
-                        .HasForeignKey("LivrosId");
-
-                    b.HasOne("Bibliotech.Models.Usuario", "Usuario")
-                        .WithMany()
-                        .HasForeignKey("UsuarioId1");
-
-                    b.Navigation("Livro");
-
-                    b.Navigation("Usuario");
                 });
 
             modelBuilder.Entity("Bibliotech.Models.Livros", b =>

@@ -24,6 +24,50 @@ namespace Bibliotech.Data
             modelBuilder.Entity<ProgressoLeitura>().ToTable("Progressos");
             modelBuilder.Entity<Resenha>().ToTable("Resenhas");
             modelBuilder.Entity<Usuario>().ToTable("Usuarios");
+
+
+            Guid AdminGuid = Guid.NewGuid();
+            modelBuilder.Entity<IdentityRole>().HasData(
+                new IdentityRole
+                {
+                    Id = AdminGuid.ToString(),
+                    Name = "Admin",
+                    NormalizedName = "ADMIN"
+                },
+                new IdentityRole
+                {
+                    Id = Guid.NewGuid().ToString(),
+                    Name = "Leitor",
+                    NormalizedName = "LEITOR"
+                }
+            );
+
+            Guid UserGuid = Guid.NewGuid();
+            var hasher = new PasswordHasher<IdentityUser>();
+
+            modelBuilder.Entity<IdentityUser>().HasData(
+                new IdentityUser
+                {
+                    Id = UserGuid.ToString(),
+                    UserName = "admin@admin.com",
+                    NormalizedUserName = "ADMIN@ADMIN.COM",
+                    Email = "admin@admin.com",
+                    NormalizedEmail = "ADMIN@ADMIN.COM",
+                    EmailConfirmed = true,
+                    PasswordHash = hasher.HashPassword(null, "Admin123"),
+                    SecurityStamp = Guid.NewGuid().ToString(),
+                    ConcurrencyStamp = Guid.NewGuid().ToString()
+                }
+            );
+
+            modelBuilder.Entity<IdentityUserRole<string>>().HasData(
+                new IdentityUserRole<string>
+                {
+                    UserId = UserGuid.ToString(),
+                    RoleId = AdminGuid.ToString()
+                }
+            );
         }
+        public DbSet<Biblioteca.Models.Avaliacao> Avaliacao { get; set; } = default!;
     }
 }
