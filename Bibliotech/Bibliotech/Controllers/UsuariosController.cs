@@ -167,5 +167,73 @@ namespace Bibliotech.Controllers
             }
             return Ok("Usuário adicionado ao papel de administrador com sucesso");
         }
+
+
+        // [HttpPost("login")]
+        // Criar um metodo de login usando o login do Identity
+        [HttpPost("login")]
+        public async Task<IActionResult> Login([FromBody] LoginModel loginModel)
+        {
+            if (loginModel == null || string.IsNullOrEmpty(loginModel.Email) || string.IsNullOrEmpty(loginModel.Password))
+            {
+                return BadRequest("Email e senha são obrigatórios.");
+            }
+            var user = await _context.Users.Where(u => u.Email == loginModel.Email).FirstOrDefaultAsync();
+            if (user == null)
+            {
+                return Unauthorized("Usuário não encontrado.");
+            }
+            var result = await _userManager.CheckPasswordAsync(user, loginModel.Password);
+            if (!result)
+            {
+                return Unauthorized("Senha incorreta.");
+            }
+            // Gerar o Token e retornar para o usuarios
+            var token = await _userManager.GenerateUserTokenAsync(user, TokenOptions.DefaultProvider, "Login");
+            if (token == null)
+            {
+                return Unauthorized("Erro ao gerar o token de autenticação.");
+            }
+            Response.Cookies.Append("AuthToken", token, new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.Strict,
+                Expires = DateTimeOffset.UtcNow.AddHours(1)
+            });
+
+            // Retornar o usuário autenticado
+            return Ok(new
+            {
+                Token = token
+            });
+        }
+
+        //[HttpPost("registrar")]
+        // Criar um metodo de registro de Identity recenbendo o email e senha
+        [HttpPost("registrar")]
+        public async Task<IActionResult> Registrar([FromBody] RegisterModel registerModel)
+        {
+            if (registerModel == null || string.IsNullOrEmpty(registerModel.Email) || string.IsNullOrEmpty(registerModel.Password))
+            {
+                return BadRequest("Email e senha são obrigatórios.");
+            }
+            var user = new IdentityUser
+            {
+                UserName = registerModel.Email,
+                Email = registerModel.Email
+            };
+            var result = await _userManager.CreateAsync(user, registerModel.Password);
+            if (!result.Succeeded)
+            {
+                return BadRequest(result.Errors);
+            }
+            // Adicionar o usuário ao papel de Leitor
+            await _userManager.AddToRoleAsync(user, "Leitor");
+            return Ok(user);
+        }
+
+
+
     }
 }

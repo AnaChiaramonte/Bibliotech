@@ -54,7 +54,7 @@ namespace Bibliotech.Data
                     Email = "admin@admin.com",
                     NormalizedEmail = "ADMIN@ADMIN.COM",
                     EmailConfirmed = true,
-                    PasswordHash = hasher.HashPassword(null, "Admin123"),
+                    PasswordHash = hasher.HashPassword(null, " b"),
                     SecurityStamp = Guid.NewGuid().ToString(),
                     ConcurrencyStamp = Guid.NewGuid().ToString()
                 }
