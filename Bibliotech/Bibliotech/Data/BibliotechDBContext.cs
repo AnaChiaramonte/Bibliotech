@@ -1,28 +1,29 @@
-﻿using Bibliotech.Models;
+﻿using Biblioteca.Models;
+using Bibliotech.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace Bibliotech.Data
 {
-    public class BibliotechDBContext : IdentityDbContext
+    public class BibliotechDBContext : IdentityDbContext<IdentityUser, IdentityRole, string>
     {
         public BibliotechDBContext(DbContextOptions<BibliotechDBContext> options) : base(options)
         {
         }
+        public DbSet<Avaliacao> avaliacoes { get; set; }
         public DbSet<Categoria> categorias { get; set; }
         public DbSet<Livros> livros { get; set; }
         public DbSet<ProgressoLeitura> progressos { get; set; }
-        public DbSet<Resenha> resenhas { get; set; }
         public DbSet<Usuario> usuarios { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+            modelBuilder.Entity<Avaliacao>().ToTable("Avaliacoes");
             modelBuilder.Entity<Categoria>().ToTable("Categorias");
             modelBuilder.Entity<Livros>().ToTable("Livros");
             modelBuilder.Entity<ProgressoLeitura>().ToTable("Progressos");
-            modelBuilder.Entity<Resenha>().ToTable("Resenhas");
             modelBuilder.Entity<Usuario>().ToTable("Usuarios");
 
 
@@ -54,7 +55,7 @@ namespace Bibliotech.Data
                     Email = "admin@admin.com",
                     NormalizedEmail = "ADMIN@ADMIN.COM",
                     EmailConfirmed = true,
-                    PasswordHash = hasher.HashPassword(null, " b"),
+                    PasswordHash = hasher.HashPassword(null, "Admin@123"),
                     SecurityStamp = Guid.NewGuid().ToString(),
                     ConcurrencyStamp = Guid.NewGuid().ToString()
                 }
@@ -68,6 +69,5 @@ namespace Bibliotech.Data
                 }
             );
         }
-        public DbSet<Biblioteca.Models.Avaliacao> Avaliacao { get; set; } = default!;
     }
 }

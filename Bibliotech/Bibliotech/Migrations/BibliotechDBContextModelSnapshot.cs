@@ -36,10 +36,7 @@ namespace Bibliotech.Migrations
                     b.Property<DateTime>("DataAvaliacao")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("LivroId")
-                        .HasColumnType("int");
-
-                    b.Property<Guid?>("LivrosId")
+                    b.Property<Guid>("LivroId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("Nota")
@@ -53,11 +50,11 @@ namespace Bibliotech.Migrations
 
                     b.HasKey("AvaliacaoId");
 
-                    b.HasIndex("LivrosId");
+                    b.HasIndex("LivroId");
 
                     b.HasIndex("UsuarioId1");
 
-                    b.ToTable("Avaliacao");
+                    b.ToTable("Avaliacoes", (string)null);
                 });
 
             modelBuilder.Entity("Bibliotech.Models.Categoria", b =>
@@ -112,11 +109,14 @@ namespace Bibliotech.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTime>("DataAtualização")
+                    b.Property<DateTime>("DataAtualizacao")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("livroId")
-                        .HasColumnType("int");
+                    b.Property<Guid>("UsuarioId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("livroId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("paginaLidas")
                         .HasColumnType("int");
@@ -124,10 +124,11 @@ namespace Bibliotech.Migrations
                     b.Property<int>("totalPaginas")
                         .HasColumnType("int");
 
-                    b.Property<Guid>("usuarioId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.HasKey("ProgressoLeituraId");
+
+                    b.HasIndex("UsuarioId");
+
+                    b.HasIndex("livroId");
 
                     b.ToTable("Progressos", (string)null);
                 });
@@ -151,12 +152,14 @@ namespace Bibliotech.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("UsuarioId")
-                        .HasColumnType("int");
+                    b.Property<Guid>("UsuarioId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.HasKey("ResenhaId");
 
                     b.HasIndex("LivroId");
+
+                    b.HasIndex("UsuarioId");
 
                     b.ToTable("Resenhas", (string)null);
                 });
@@ -225,13 +228,13 @@ namespace Bibliotech.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "5f0162b6-e321-404d-a2d4-7693cfee64ea",
+                            Id = "2e726976-1ebb-45d6-9126-3cdbbfd57e13",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
-                            Id = "04a1b200-b5a5-4405-886e-f6e938757012",
+                            Id = "526e04c2-4211-48d8-b015-b669cb5f3e92",
                             Name = "Leitor",
                             NormalizedName = "LEITOR"
                         });
@@ -329,17 +332,17 @@ namespace Bibliotech.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "7dae8500-429e-4bfd-a438-a5a2afbe7d4f",
+                            Id = "578c97a1-2597-4ae5-bf8f-465ec33b1c59",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "8a4cacbe-dd9e-41a5-a68e-23f13ccd5ead",
+                            ConcurrencyStamp = "b122d04a-001b-48f0-811b-7ee8e5c423b7",
                             Email = "admin@admin.com",
                             EmailConfirmed = true,
                             LockoutEnabled = false,
                             NormalizedEmail = "ADMIN@ADMIN.COM",
                             NormalizedUserName = "ADMIN@ADMIN.COM",
-                            PasswordHash = "AQAAAAIAAYagAAAAECKaG6NFOEN4LH7Hc+nenTNsrR9I/HB5MaOea6txzQzjTgkmimgc2CEKrvHGV5LmXw==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEBN1XyMotlTrVKZ+VHrJ4hdSjRev2JRTifyf4xQ9UI4IQUcKZCHze02US6v0B75AHg==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "51d55008-4380-403f-a523-5e1a88ad68a6",
+                            SecurityStamp = "fa63eb32-cc79-4530-8b94-35a65fb57b10",
                             TwoFactorEnabled = false,
                             UserName = "admin@admin.com"
                         });
@@ -409,8 +412,8 @@ namespace Bibliotech.Migrations
                     b.HasData(
                         new
                         {
-                            UserId = "7dae8500-429e-4bfd-a438-a5a2afbe7d4f",
-                            RoleId = "5f0162b6-e321-404d-a2d4-7693cfee64ea"
+                            UserId = "578c97a1-2597-4ae5-bf8f-465ec33b1c59",
+                            RoleId = "2e726976-1ebb-45d6-9126-3cdbbfd57e13"
                         });
                 });
 
@@ -437,7 +440,9 @@ namespace Bibliotech.Migrations
                 {
                     b.HasOne("Bibliotech.Models.Livros", "Livro")
                         .WithMany()
-                        .HasForeignKey("LivrosId");
+                        .HasForeignKey("LivroId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("Bibliotech.Models.Usuario", "Usuario")
                         .WithMany()
@@ -457,13 +462,40 @@ namespace Bibliotech.Migrations
                     b.Navigation("Categoria");
                 });
 
+            modelBuilder.Entity("Bibliotech.Models.ProgressoLeitura", b =>
+                {
+                    b.HasOne("Bibliotech.Models.Usuario", "Usuario")
+                        .WithMany()
+                        .HasForeignKey("UsuarioId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Bibliotech.Models.Livros", "Livro")
+                        .WithMany()
+                        .HasForeignKey("livroId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Livro");
+
+                    b.Navigation("Usuario");
+                });
+
             modelBuilder.Entity("Bibliotech.Models.Resenha", b =>
                 {
                     b.HasOne("Bibliotech.Models.Livros", "Livro")
                         .WithMany()
                         .HasForeignKey("LivroId");
 
+                    b.HasOne("Bibliotech.Models.Usuario", "Usuario")
+                        .WithMany()
+                        .HasForeignKey("UsuarioId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("Livro");
+
+                    b.Navigation("Usuario");
                 });
 
             modelBuilder.Entity("Bibliotech.Models.Usuario", b =>

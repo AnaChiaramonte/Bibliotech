@@ -1,15 +1,19 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Bibliotech.Controllers
+namespace Bibliotech.Models
 {
-    public class RegisterModel
+    public class LoginModel
     {
         [Required]
         [EmailAddress]
         public string Email { get; set; }
         [Required]
         [DataType(DataType.Password)]
-        [Display(Name = "Password")]
         public string Password { get; set; }
+        [Display(Name = "Lembrar-me")]
+        public bool? RememberMe { get; set; } = false;
+
+
+
     }
 }

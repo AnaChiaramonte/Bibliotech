@@ -1,9 +1,12 @@
-﻿using System.Security.Claims;
+﻿using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 using Bibliotech.Data;
 using Bibliotech.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Bibliotech.Controllers
 {
@@ -171,43 +174,105 @@ namespace Bibliotech.Controllers
 
         // [HttpPost("login")]
         // Criar um metodo de login usando o login do Identity
+        //[HttpPost("login")]
+        //public async Task<IActionResult> Login([FromBody] LoginModel loginModel)
+        //{
+        //    if (loginModel == null || string.IsNullOrEmpty(loginModel.Email) || string.IsNullOrEmpty(loginModel.Password))
+        //    {
+        //        return BadRequest("Email e senha são obrigatórios.");
+        //    }
+        //    var user = await _context.Users.Where(u => u.Email == loginModel.Email).FirstOrDefaultAsync();
+        //    if (user == null)
+        //    {
+        //        return Unauthorized("Usuário não encontrado.");
+        //    }
+        //    var result = await _userManager.CheckPasswordAsync(user, loginModel.Password);
+        //    if (!result)
+        //    {
+        //        return Unauthorized("Senha incorreta.");
+        //    }
+        //    // Gerar o Token e retornar para o usuarios
+        //    var token = await _userManager.GenerateUserTokenAsync(user, TokenOptions.DefaultProvider, "Login");
+        //    if (token == null)
+        //    {
+        //        return Unauthorized("Erro ao gerar o token de autenticação.");
+        //    }
+        //    Response.Cookies.Append("AuthToken", token, new CookieOptions
+        //    {
+        //        HttpOnly = true,
+        //        Secure = true,
+        //        SameSite = SameSiteMode.Strict,
+        //        Expires = DateTimeOffset.UtcNow.AddHours(1)
+        //    });
+
+        //    // Retornar o usuário autenticado
+        //    return Ok(new
+        //    {
+        //        Token = token
+        //    });
+        //}
+
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginModel loginModel)
         {
             if (loginModel == null || string.IsNullOrEmpty(loginModel.Email) || string.IsNullOrEmpty(loginModel.Password))
-            {
                 return BadRequest("Email e senha são obrigatórios.");
-            }
-            var user = await _context.Users.Where(u => u.Email == loginModel.Email).FirstOrDefaultAsync();
+
+            var user = await _userManager.FindByEmailAsync(loginModel.Email);
             if (user == null)
-            {
                 return Unauthorized("Usuário não encontrado.");
-            }
+
             var result = await _userManager.CheckPasswordAsync(user, loginModel.Password);
             if (!result)
-            {
                 return Unauthorized("Senha incorreta.");
-            }
-            // Gerar o Token e retornar para o usuarios
-            var token = await _userManager.GenerateUserTokenAsync(user, TokenOptions.DefaultProvider, "Login");
-            if (token == null)
-            {
-                return Unauthorized("Erro ao gerar o token de autenticação.");
-            }
-            Response.Cookies.Append("AuthToken", token, new CookieOptions
-            {
-                HttpOnly = true,
-                Secure = true,
-                SameSite = SameSiteMode.Strict,
-                Expires = DateTimeOffset.UtcNow.AddHours(1)
-            });
 
-            // Retornar o usuário autenticado
+            // Claims do Identity
+            var claims = new List<Claim>
+    {
+        new Claim(JwtRegisteredClaimNames.Sub, user.Id),
+        new Claim(JwtRegisteredClaimNames.Email, user.Email ?? ""),
+        new Claim(ClaimTypes.NameIdentifier, user.Id),
+        new Claim(ClaimTypes.Name, user.UserName ?? ""),
+        new Claim("AspNet.Identity.SecurityStamp", user.SecurityStamp ?? "")
+    };
+
+            // Claims customizadas do usuário
+            var userClaims = await _userManager.GetClaimsAsync(user);
+            claims.AddRange(userClaims);
+
+            // Roles
+            var roles = await _userManager.GetRolesAsync(user);
+            foreach (var role in roles)
+            {
+                claims.Add(new Claim(ClaimTypes.Role, role));
+            }
+
+            // Configurações do JWT
+            var jwtKey = HttpContext.RequestServices.GetRequiredService<IConfiguration>()["Jwt:Key"];
+            var jwtIssuer = HttpContext.RequestServices.GetRequiredService<IConfiguration>()["Jwt:Issuer"];
+            var jwtAudience = HttpContext.RequestServices.GetRequiredService<IConfiguration>()["Jwt:Audience"];
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
+            var expires = DateTime.UtcNow.AddHours(1);
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+            var token = new JwtSecurityToken(
+                issuer: jwtIssuer,
+                audience: jwtAudience,
+                claims: claims,
+                expires: expires,
+                signingCredentials: creds
+            );
+
+            var tokenString = new JwtSecurityTokenHandler().WriteToken(token);
+
             return Ok(new
             {
-                Token = token
+                Token = tokenString,
+                ExpiraEm = expires
             });
         }
+
+
 
         //[HttpPost("registrar")]
         // Criar um metodo de registro de Identity recenbendo o email e senha

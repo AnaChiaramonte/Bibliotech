@@ -3,10 +3,12 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
+#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
+
 namespace Bibliotech.Migrations
 {
     /// <inheritdoc />
-    public partial class Inicio : Migration
+    public partial class Initial : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -61,22 +63,6 @@ namespace Bibliotech.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Categorias", x => x.CategoriaId);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Progressos",
-                columns: table => new
-                {
-                    ProgressoLeituraId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    livroId = table.Column<int>(type: "int", nullable: false),
-                    usuarioId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    paginaLidas = table.Column<int>(type: "int", nullable: false),
-                    totalPaginas = table.Column<int>(type: "int", nullable: false),
-                    DataAtualização = table.Column<DateTime>(type: "datetime2", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Progressos", x => x.ProgressoLeituraId);
                 });
 
             migrationBuilder.CreateTable(
@@ -229,12 +215,69 @@ namespace Bibliotech.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Avaliacoes",
+                columns: table => new
+                {
+                    AvaliacaoId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Nota = table.Column<int>(type: "int", nullable: false),
+                    Comentario = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    DataAvaliacao = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    LivroId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    UsuarioId = table.Column<int>(type: "int", nullable: false),
+                    UsuarioId1 = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Avaliacoes", x => x.AvaliacaoId);
+                    table.ForeignKey(
+                        name: "FK_Avaliacoes_Livros_LivroId",
+                        column: x => x.LivroId,
+                        principalTable: "Livros",
+                        principalColumn: "LivrosId",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Avaliacoes_Usuarios_UsuarioId1",
+                        column: x => x.UsuarioId1,
+                        principalTable: "Usuarios",
+                        principalColumn: "UsuarioId");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Progressos",
+                columns: table => new
+                {
+                    ProgressoLeituraId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    livroId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    UsuarioId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    paginaLidas = table.Column<int>(type: "int", nullable: false),
+                    totalPaginas = table.Column<int>(type: "int", nullable: false),
+                    DataAtualizacao = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Progressos", x => x.ProgressoLeituraId);
+                    table.ForeignKey(
+                        name: "FK_Progressos_Livros_livroId",
+                        column: x => x.livroId,
+                        principalTable: "Livros",
+                        principalColumn: "LivrosId",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Progressos_Usuarios_UsuarioId",
+                        column: x => x.UsuarioId,
+                        principalTable: "Usuarios",
+                        principalColumn: "UsuarioId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Resenhas",
                 columns: table => new
                 {
                     ResenhaId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     LivroId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    UsuarioId = table.Column<int>(type: "int", nullable: false),
+                    UsuarioId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Texto = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Avaliação = table.Column<int>(type: "int", nullable: false),
                     DataResenha = table.Column<DateOnly>(type: "date", nullable: false)
@@ -247,7 +290,32 @@ namespace Bibliotech.Migrations
                         column: x => x.LivroId,
                         principalTable: "Livros",
                         principalColumn: "LivrosId");
+                    table.ForeignKey(
+                        name: "FK_Resenhas_Usuarios_UsuarioId",
+                        column: x => x.UsuarioId,
+                        principalTable: "Usuarios",
+                        principalColumn: "UsuarioId",
+                        onDelete: ReferentialAction.Cascade);
                 });
+
+            migrationBuilder.InsertData(
+                table: "AspNetRoles",
+                columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
+                values: new object[,]
+                {
+                    { "2e726976-1ebb-45d6-9126-3cdbbfd57e13", null, "Admin", "ADMIN" },
+                    { "526e04c2-4211-48d8-b015-b669cb5f3e92", null, "Leitor", "LEITOR" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "AspNetUsers",
+                columns: new[] { "Id", "AccessFailedCount", "ConcurrencyStamp", "Email", "EmailConfirmed", "LockoutEnabled", "LockoutEnd", "NormalizedEmail", "NormalizedUserName", "PasswordHash", "PhoneNumber", "PhoneNumberConfirmed", "SecurityStamp", "TwoFactorEnabled", "UserName" },
+                values: new object[] { "578c97a1-2597-4ae5-bf8f-465ec33b1c59", 0, "b122d04a-001b-48f0-811b-7ee8e5c423b7", "admin@admin.com", true, false, null, "ADMIN@ADMIN.COM", "ADMIN@ADMIN.COM", "AQAAAAIAAYagAAAAEBN1XyMotlTrVKZ+VHrJ4hdSjRev2JRTifyf4xQ9UI4IQUcKZCHze02US6v0B75AHg==", null, false, "fa63eb32-cc79-4530-8b94-35a65fb57b10", false, "admin@admin.com" });
+
+            migrationBuilder.InsertData(
+                table: "AspNetUserRoles",
+                columns: new[] { "RoleId", "UserId" },
+                values: new object[] { "2e726976-1ebb-45d6-9126-3cdbbfd57e13", "578c97a1-2597-4ae5-bf8f-465ec33b1c59" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
@@ -289,14 +357,39 @@ namespace Bibliotech.Migrations
                 filter: "[NormalizedUserName] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Avaliacoes_LivroId",
+                table: "Avaliacoes",
+                column: "LivroId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Avaliacoes_UsuarioId1",
+                table: "Avaliacoes",
+                column: "UsuarioId1");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Livros_CategoriaId",
                 table: "Livros",
                 column: "CategoriaId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Progressos_livroId",
+                table: "Progressos",
+                column: "livroId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Progressos_UsuarioId",
+                table: "Progressos",
+                column: "UsuarioId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Resenhas_LivroId",
                 table: "Resenhas",
                 column: "LivroId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Resenhas_UsuarioId",
+                table: "Resenhas",
+                column: "UsuarioId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Usuarios_UserId1",
@@ -323,13 +416,13 @@ namespace Bibliotech.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
+                name: "Avaliacoes");
+
+            migrationBuilder.DropTable(
                 name: "Progressos");
 
             migrationBuilder.DropTable(
                 name: "Resenhas");
-
-            migrationBuilder.DropTable(
-                name: "Usuarios");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");
@@ -338,10 +431,13 @@ namespace Bibliotech.Migrations
                 name: "Livros");
 
             migrationBuilder.DropTable(
-                name: "AspNetUsers");
+                name: "Usuarios");
 
             migrationBuilder.DropTable(
                 name: "Categorias");
+
+            migrationBuilder.DropTable(
+                name: "AspNetUsers");
         }
     }
 }

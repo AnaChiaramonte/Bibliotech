@@ -1,38 +1,36 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
+﻿using Biblioteca.Models;
+using Bibliotech.Data;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Biblioteca.Models;
-using Bibliotech.Data;
 
 namespace Bibliotech.Controllers
 {
     [Route("api/[controller]")]
+    [Authorize]
     [ApiController]
-    public class AvaliacaosController : ControllerBase
+    public class AvaliacoesController : ControllerBase
     {
         private readonly BibliotechDBContext _context;
 
-        public AvaliacaosController(BibliotechDBContext context)
+        public AvaliacoesController(BibliotechDBContext context)
         {
             _context = context;
         }
 
-        // GET: api/Avaliacaos
+        // GET: api/Avaliacoes
+        [AllowAnonymous]
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Avaliacao>>> GetAvaliacao()
+        public async Task<ActionResult<IEnumerable<Avaliacao>>> Getavaliacoes()
         {
-            return await _context.Avaliacao.ToListAsync();
+            return await _context.avaliacoes.ToListAsync();
         }
 
-        // GET: api/Avaliacaos/5
+        // GET: api/Avaliacoes/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Avaliacao>> GetAvaliacao(int id)
         {
-            var avaliacao = await _context.Avaliacao.FindAsync(id);
+            var avaliacao = await _context.avaliacoes.FindAsync(id);
 
             if (avaliacao == null)
             {
@@ -42,7 +40,7 @@ namespace Bibliotech.Controllers
             return avaliacao;
         }
 
-        // PUT: api/Avaliacaos/5
+        // PUT: api/Avaliacoes/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
         public async Task<IActionResult> PutAvaliacao(int id, Avaliacao avaliacao)
@@ -73,28 +71,28 @@ namespace Bibliotech.Controllers
             return NoContent();
         }
 
-        // POST: api/Avaliacaos
+        // POST: api/Avaliacoes
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
         public async Task<ActionResult<Avaliacao>> PostAvaliacao(Avaliacao avaliacao)
         {
-            _context.Avaliacao.Add(avaliacao);
+            _context.avaliacoes.Add(avaliacao);
             await _context.SaveChangesAsync();
 
             return CreatedAtAction("GetAvaliacao", new { id = avaliacao.AvaliacaoId }, avaliacao);
         }
 
-        // DELETE: api/Avaliacaos/5
+        // DELETE: api/Avaliacoes/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteAvaliacao(int id)
         {
-            var avaliacao = await _context.Avaliacao.FindAsync(id);
+            var avaliacao = await _context.avaliacoes.FindAsync(id);
             if (avaliacao == null)
             {
                 return NotFound();
             }
 
-            _context.Avaliacao.Remove(avaliacao);
+            _context.avaliacoes.Remove(avaliacao);
             await _context.SaveChangesAsync();
 
             return NoContent();
@@ -102,7 +100,7 @@ namespace Bibliotech.Controllers
 
         private bool AvaliacaoExists(int id)
         {
-            return _context.Avaliacao.Any(e => e.AvaliacaoId == id);
+            return _context.avaliacoes.Any(e => e.AvaliacaoId == id);
         }
     }
 }
